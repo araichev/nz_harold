@@ -17,12 +17,12 @@ import dotenv as de
 import server_utils as su
 
 
-fabfile_version = "2.3.0"
+fabfile_version = "2.3.1"
 
 # Configure
 ROOT = pl.Path(os.path.abspath(__file__)).parent.resolve()
 de.load_dotenv(ROOT / ".env")
-PROJECT = "nzherald"
+PROJECT = "nzharold"
 PROJECT_MANAGER = "uv"
 REMOTE_ROOT = pl.Path("/home/mrcagney")
 REMOTE_DIR = REMOTE_ROOT / "webapps" / PROJECT
@@ -134,7 +134,7 @@ def get_server_port(ctx) -> int:
     """
     result = 6666  # Default
     for port, domain, __ in sorted(list_server_ports(ctx)):
-        if domain == DOMAIN:
+        if domain == DOMAIN and port != "N/A":
             result = int(port)
             break
         elif port != "N/A":
