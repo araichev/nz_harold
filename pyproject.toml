@@ -1,0 +1,41 @@
+[project]
+name = "nzherald"
+version = "1.0.0"
+description = "An app to fetch ad-free news from the NZ Herald"
+authors = [
+    {name = "Alexander Raichev", email = "araichev@mrcagney.com"}
+]
+readme = "README.rst"
+requires-python = ">=3.13"
+dependencies = [
+    "dash>=2.18.0",
+    "dash-bootstrap-components>=1.6.0",
+    "dash-extensions>=1.0.18",
+    "python-dotenv>=1.0.1",
+    "gunicorn>=23.0.0",
+    "flask-login>=0.6.2",
+    "flask-sqlalchemy>=3.0.3",
+    "sqlalchemy>=2.0.2",
+    "loguru>=0.7.2",
+    "beautifulsoup4>=4.13.4",
+    "markdownify>=1.1.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "server-utils>=1.2.0",
+    "fabric>=3.2.2",
+    "pre-commit-uv>=4.1.1",
+    "ruff>=0.4.10",
+    "marimo>=0.14.10",
+]
+
+[tool.uv.sources]
+server-utils = { git = "ssh://git@github.com/mrcagney/server_utils.git" }
+
+[tool.ruff]
+line-length = 89
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default
+lint.select = ["E", "F"]
+lint.ignore = ["E402", "E501", "F401", "F403"]
+exclude = ["**/notebooks/**"]
