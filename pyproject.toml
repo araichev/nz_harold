@@ -1,6 +1,6 @@
 [project]
 name = "nzherald"
-version = "1.0.0"
+version = "1.0.1"
 description = "An app to fetch ad-free news from the NZ Herald"
 authors = [
     {name = "Alexander Raichev", email = "araichev@mrcagney.com"}

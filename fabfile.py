@@ -17,7 +17,7 @@ import dotenv as de
 import server_utils as su
 
 
-fabfile_version = "2.3.1"
+fabfile_version = "2.3.2"
 
 # Configure
 ROOT = pl.Path(os.path.abspath(__file__)).parent.resolve()
@@ -35,17 +35,17 @@ CONFIG = fr.Config(overrides={"sudo": {"password": SUDO_PWD}})
 
 def check_for_passwords():
     msg = ""
-    if not os.getenv("SUDO_PWD"):
+    if not os.getenv("SUDO_PASSWORD"):
         msg += (
             "You must add the server's sudo password to your local .env file in the "
-            "variable SUDO_PWD; "
+            "variable SUDO_PASSWORD; "
         )
     if (ROOT / PROJECT / "user_management.py").exists() and not os.getenv(
-        "MRCAGNEY_PWD"
+        "MRCAGNEY_PASSWORD"
     ):
         msg += (
             "You must add the default 'mrcagney' user password to your local .env file "
-            "in the variable MRCAGNEY_PWD"
+            "in the variable MRCAGNEY_PASSWORD"
         )
     if msg:
         raise ValueError(msg)
@@ -201,9 +201,7 @@ def init_local_env(ctx):
             ROOT / "users.sqlite"
         ).exists():
             ctx.run(f"uv run python {PROJECT}/user_management.py create-user-table")
-            ctx.run(
-                f"uv run python {PROJECT}/user_management.py add-user test test test"
-            )
+            ctx.run(f"uv run python {PROJECT}/user_management.py add-user test test test")
 
     # Create local .env file
     if not (ROOT / ".env").exists():
@@ -230,7 +228,9 @@ def init_project_folder(ctx):
 
 
 @fr.task
-def init_dotenv(ctx, ignore_keys=("MODE", "SECRET_KEY", "SUDO_PWD", "MRCAGNEY_PWD")):
+def init_dotenv(
+    ctx, ignore_keys=("MODE", "SECRET_KEY", "SUDO_PASSWORD", "MRCAGNEY_PASSWORD")
+):
     """
     Copy the local environment variables in the ``.env`` file to the web server,
     ignoring the given keys.
@@ -501,16 +501,20 @@ def delete_gunicorn(ctx):
 @fr.task
 def init_user_db(ctx):
     """
-    Remotely, if the app has a ``user_management.py`` file, then create a user database
-    initialise it with user 'mrcagney' and the password in the `MRCAGNEY_PWD`
+    Remotely, if the app has a ``user_management.py`` file, then create a user database,
+    initialise it with user 'mrcagney' and the password in the `MRCAGNEY_PASSWORD`
     environment variable.
+    Running this task twice will not destroy the original database, but it will recreate
+    the 'mrcagney' user.
+    So you could change `MRCAGNEY_PASSWORD`, then run this task to update the password
+    on the production database.
     """
     if not (ROOT / PROJECT / "user_management.py").exists():
         return
 
-    if not os.getenv("MRCAGNEY_PWD"):
+    if not os.getenv("MRCAGNEY_PASSWORD"):
         raise ValueError(
-            "You must add the MRCagney user password to the .env file as MRCAGNEY_PWD"
+            "You must add the MRCagney user password to the .env file as MRCAGNEY_PASSWORD"
         )
 
     print("-" * 10, "Initialising user database and adding user 'mrcagney'")
@@ -518,8 +522,9 @@ def init_user_db(ctx):
         with c.cd(REMOTE_DIR / PROJECT):
             c.run(
                 f"bash -ic 'uv run python {PROJECT}/user_management.py create-user-table && "
+                f"uv run python {PROJECT}/user_management.py remove-user mrcagney && "
                 f"uv run python {PROJECT}/user_management.py add-user "
-                f"mrcagney {os.getenv('MRCAGNEY_PWD')} mrcagney@mrcagney.com'"
+                f"mrcagney {os.getenv('MRCAGNEY_PASSWORD')} mrcagney@mrcagney.com'"
             )
 
 
