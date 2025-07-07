@@ -25,6 +25,10 @@ How to start work on this project
 Changelog
 =========
 
+1.0.1, 2025-07-07
+-----------------
+- Updated ``fabfile.py``.
+
 1.0.0, 2025-07-03
 -----------------
 - First release base on prior work.
